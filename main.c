@@ -22,12 +22,14 @@
 void die_with_error(char *error_msg);     // Error handling
 void handle_tcp_client(int client_sock);  // TCP client handling
 
+void send_msg(int sockfd, const char* msg);
 
 int main(int argc, char *argv[])
 {
     int server_sock;                      // Socket descriptor for the server
     int client_sock;                      // Socket descruotir for the client
     struct sockaddr_in echo_client_addr;  // Client address
+    // struct addrinfo hints, *res;
     unsigned short echo_server_port;      // Server port
     unsigned int client_len;              // Length of the client address struct
 
@@ -45,6 +47,10 @@ int main(int argc, char *argv[])
     {
         die_with_error("socket() failed");
     }
+    else
+    {
+        puts("Socket created.");
+    }
 
     // Construct local address structure
     struct sockaddr_in server_addr = {
@@ -59,6 +65,10 @@ int main(int argc, char *argv[])
     if (bind(server_sock, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0)
     {
         die_with_error("bind() failed");
+    }
+    else
+    {
+        puts("Socket bound.");
     }
 
     // Mark the socket so it will listen for incoming connections
@@ -104,6 +114,7 @@ void handle_tcp_client(int client_sock)
         die_with_error("recv() failed");
     }
 
+    /*
     // Send received string and receive again until end of transmission
     while (recv_msg_size > 0)  // <- Zero indicates end of transmission
     {
@@ -119,6 +130,74 @@ void handle_tcp_client(int client_sock)
             die_with_error("recv() failed");
         }
     }
+    */
 
+    const char* msg_body = "<h1>HELLO Z-RAD-WORLD!!!!!!</h1>";
+
+    char *content_len_p = (char*)malloc(150);
+    sprintf(content_len_p, "Content-Length: %zd\r\n", strlen(msg_body) * sizeof(char));
+
+    send_msg(client_sock, "HTTP/1.1 200 OK\r\n");
+    //send_msg(client_sock, "Date: " __DATE__ " " __TIME__ "\r\n");
+    send_msg(client_sock, "Content-Type: text/html\r\n");
+    send_msg(client_sock, content_len_p);
+    send_msg(client_sock, "\r\n");
+    send_msg(client_sock, msg_body);
+
+    /**
+     * char *response_start_line = "HTTP/1.1 YO-JOE\r\n";
+     * size_t len = strlen(response_start_line) * sizeof(char);
+     * ssize_t bytes_sent = send(client_sock, response_start_line, len, 0);
+     * // ^ FYI `ssize_t` is *Signed* Size Type
+     */
+
+/*
+    // It appears you can only send 8 bytes of your message at a time.
+    // ...or I'm just an idiot an was doing a `sizeof` on the pointer
+    // so 8 bytes on a 64-bit system *womp womp*
+    printf("So we sent %zd bytes to the client sockfd out of the total %zd bytes.\n", bytes_sent, len);
+
+    while (bytes_sent < len) {
+        printf("So that make the remainder of our message: %s\n", response_start_line + bytes_sent);
+        bytes_sent = send(client_sock, response_start_line + bytes_sent, len, 0);
+        printf("So we've now sent %zd bytes to the client sockfd.\n", bytes_sent);
+        break;
+    }
+
+    const char* msg_body = "<h1>HELLO Z-WORLD!!!!!!</h1>\r";
+    size_t body_size = strlen(msg_body) * sizeof(char);
+
+    //printf("Content-Length: %zd\r\n", body_size);
+    //close(client_sock);
+    //exit;
+
+    //char moar_data[BUFSIZ] = "Date: Wed, 18 Jun 2014 04:42:06 GMT\r\n"
+    //                         "Content-Type: text/plain\r\n";
+
+    char *content_len_p = (char*)malloc(150);
+    content_len_p = "Content-Length: %zd\r\n";
+    sprintf(content_len_p, "Content-Length: %zd\r\n", body_size);
+    moar_data[strlen(moar_data)] = *content_len_p;
+
+    puts(moar_data);
+*/
+/*
+    size_t data_length = strlen(moar_data) * sizeof(char);
+
+    bytes_sent = 0;
+
+    bytes_sent = send(client_sock, moar_data, data_length, 0);
+    printf("So we sent %zd bytes to the client sockfd out of the total %zd bytes.\n", bytes_sent, data_length);
+    puts(moar_data);
+
+    send(client_sock, msg_body, body_size, 0);
+*/
+    puts("Yippee? *hopefully*");
     close(client_sock);  // Close client socket
+}
+
+void send_msg(int sockfd, const char* msg)
+{
+    size_t bytes = strlen(msg) * sizeof(char);
+    ssize_t bytes_sent = send(sockfd, msg, bytes, 0);
 }
