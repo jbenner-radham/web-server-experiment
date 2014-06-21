@@ -5,6 +5,8 @@
 #include <string.h>      // memset()
 #include <unistd.h>      // close()
 
+#include "src/rfc1123_date.c"
+
 #define MAXPENDING 5     // Max outstanding connection requests
 #define RCVBUFSIZE 32    // Size of receive buffer
 
@@ -137,8 +139,13 @@ void handle_tcp_client(int client_sock)
     char *content_len_p = (char*)malloc(150);
     sprintf(content_len_p, "Content-Length: %zd\r\n", strlen(msg_body) * sizeof(char));
 
+    char datetime[RFC1123_LENGTH];
+    char date_header[RFC1123_LENGTH + 9];
+    rfc1123_date(datetime);
+    sprintf(date_header, "Date: %s\r\n", datetime);
+
     send_msg(client_sock, "HTTP/1.1 200 OK\r\n");
-    //send_msg(client_sock, "Date: " __DATE__ " " __TIME__ "\r\n");
+    send_msg(client_sock, date_header);
     send_msg(client_sock, "Content-Type: text/html\r\n");
     send_msg(client_sock, content_len_p);
     send_msg(client_sock, "\r\n");
@@ -194,6 +201,7 @@ void handle_tcp_client(int client_sock)
 */
     puts("Yippee? *hopefully*");
     close(client_sock);  // Close client socket
+    free(content_len_p); // Free the allocated memory
 }
 
 void send_msg(int sockfd, const char* msg)
