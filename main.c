@@ -1,7 +1,10 @@
+#define _GNU_SOURCE // asprintf()
+
 #include <stdio.h>       // printf(), fprintf()
 #include <sys/socket.h>  // socket(), bind(), connect(), recv()
 #include <arpa/inet.h>   // socketaddr_in, inet_ntoa()
 #include <stdlib.h>      // atoi()
+#include <signal.h>
 #include <string.h>      // memset()
 #include <unistd.h>      // close()
 
@@ -26,8 +29,25 @@ void handle_tcp_client(int client_sock);  // TCP client handling
 
 void send_msg(int sockfd, const char* msg);
 
+void callback_sigint(int signum)
+{
+    printf("\nReceived signal: %d, shutting down.\n", signum);
+
+    exit(signum);
+}
+
+struct status_line_s
+{
+    double http_version;
+    u_int status_code;
+    char *reason_phrase;
+};
+
 int main(int argc, char *argv[])
 {
+    // Register signal and callback
+    signal(SIGINT, callback_sigint);
+
     int server_sock;                      // Socket descriptor for the server
     int client_sock;                      // Socket descruotir for the client
     struct sockaddr_in echo_client_addr;  // Client address
@@ -144,7 +164,19 @@ void handle_tcp_client(int client_sock)
     rfc1123_date(datetime);
     sprintf(date_header, "Date: %s\r\n", datetime);
 
-    send_msg(client_sock, "HTTP/1.1 200 OK\r\n");
+    struct status_line_s s = {
+        .http_version = 1.1,
+        .status_code = 200,
+        .reason_phrase = "Z-A-OK"
+    };
+
+    char status_line_str[25];
+
+    // format: %[flags][width][.precision][length]specifier
+    sprintf(status_line_str, "HTTP/%2.1f %zd %s\r\n", s.http_version, s.status_code, s.reason_phrase);
+
+    send_msg(client_sock, status_line_str);
+    //send_msg(client_sock, "HTTP/1.1 200 OK\r\n");
     send_msg(client_sock, date_header);
     send_msg(client_sock, "Content-Type: text/html\r\n");
     send_msg(client_sock, content_len_p);

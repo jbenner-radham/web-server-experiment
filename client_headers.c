@@ -74,6 +74,74 @@ int main(int argc, char const *argv[])
 
     char rcvbuf[RCVBUFSIZE];
 
+    // This outputs "0" when it works FYI.
+    // printf("This is strcmp working: %d\n", strcmp("hi", "hi"));
+
+    u_int i = 0;
+
+    char header_charbuf;
+    char header_strbuf[BUFSIZ];
+    bool cr_flag = false;
+    bool crlf_flag = false;
+
+    bytes_rcvd = total_bytes_rcvd = 0;
+
+    do {
+        bytes_rcvd = recv(sock, &header_charbuf, 1, 0);
+
+        if (bytes_rcvd < 0)
+            die_with_error("recv() failed");
+
+        total_bytes_rcvd += bytes_rcvd;
+
+        printf("Total bytes received: %zd\n", total_bytes_rcvd);
+
+        if (bytes_rcvd > 0)
+            // Do a "-1" to account for the zero-indexed char array.
+            header_strbuf[total_bytes_rcvd - 1] = header_charbuf;
+        else
+            break;
+
+        if (header_charbuf != '\n')
+            cr_flag = false;
+
+            if (header_charbuf == '\r')
+                cr_flag = true;
+
+        if (cr_flag && header_charbuf == '\n') {
+            puts("Found a CRLF!!!");
+            header_strbuf[total_bytes_rcvd] = '\0';
+            //puts(header_strbuf);
+            crlf_flag = true;
+        }
+
+        ++i;
+    } while (!crlf_flag);
+    // } while ( !(cr_flag == true && header_charbuf == '\n') );
+
+    puts("");
+    //printf("i <- %d\n", i);
+    puts(header_strbuf);
+
+    u_int status_code;
+    // From: http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html
+    // -----------------------------------------------------------
+    // The version of an HTTP message is indicated by an HTTP-Version field in
+    // the first line of the message.
+    //
+    //  HTTP-Version   = "HTTP" "/" 1*DIGIT "." 1*DIGIT
+    sscanf(header_strbuf, "HTTP/1.1 %d OK\r\n", &status_code);
+    printf("SSCANF? %zd\n", status_code);
+
+
+
+
+    //printf("\n%s\n", response);
+
+    close(sock);
+    rcvbuf[0] = '\0';
+    exit(0);
+
     do {
         bytes_rcvd = recv(sock, rcvbuf, RCVBUFSIZE - 1, 0);
 
@@ -116,6 +184,12 @@ int main(int argc, char const *argv[])
     printf("SSCAN: %d, SCANY: %d\n", sscan, scany);
 
     exit(0);
+}
+
+void send_msg(int sockfd, const char* msg)
+{
+    size_t bytes = strlen(msg) * sizeof(char);
+    ssize_t bytes_sent = send(sockfd, msg, bytes, 0);
 }
 
 void die_with_error(char *error_msg)
