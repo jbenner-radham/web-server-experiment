@@ -173,7 +173,9 @@ void handle_tcp_client(int client_sock)
     char status_line_str[25];
 
     // format: %[flags][width][.precision][length]specifier
-    sprintf(status_line_str, "HTTP/%2.1f %zd %s\r\n", s.http_version, s.status_code, s.reason_phrase);
+    sprintf(status_line_str, "HTTP/%2.1f %zd %s\r\n", s.http_version,
+                                                      s.status_code,
+                                                      s.reason_phrase);
 
     send_msg(client_sock, status_line_str);
     //send_msg(client_sock, "HTTP/1.1 200 OK\r\n");

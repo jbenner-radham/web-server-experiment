@@ -33,19 +33,13 @@
 //      MUST NOT include a Date header field. In this case, the rules
 //      in section 14.18.1 MUST be followed.
 
-
+void die_with_error(char *error_msg);  // Error handling
 
 // This maximum number of characters in an RFC1123 date is 29 + 1 for '\0'.
 #define RFC1123_LENGTH 30
 
 char *rfc1123_date(char buf[])
 {
-    //if (current_time == ((time_t)-1))
-    //{
-    //    (void) fprintf(stderr, "Failure to compute the current time.");
-    //    return EXIT_FAILURE;
-    //}
-
     // https://en.wikipedia.org/wiki/C_date_and_time_functions
 
     // HTTP-date - RFC-1123 which is a updated version of RFC-822 referenced
@@ -55,10 +49,13 @@ char *rfc1123_date(char buf[])
     //
     // Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 1123
     const char *http_date_fmt = "%a, %d %b %Y %T GMT";
+
+    // Upon successful completion, time() returns the value of time. Otherwise,
+    // (time_t)-1 is returned.
     time_t t = time(NULL);
 
-    // The format is a fixed length of 29 chars and we add one for '\0'
-    //char buf[30];
+    if (t == ((time_t) - 1))
+        die_with_error("Failed to generate the current time.");
 
     if (strftime(buf, RFC1123_LENGTH, http_date_fmt, gmtime(&t))) {
         return buf;
@@ -68,3 +65,9 @@ char *rfc1123_date(char buf[])
 
     return NULL;
 }
+
+//void die_with_error(char *error_msg)
+//{
+//    perror(error_msg);
+//    exit(1);
+//}

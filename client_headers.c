@@ -10,6 +10,8 @@
 
 void die_with_error(char *error_msg);     // Error handling
 
+ssize_t recv_header(int sockfd, char dest[]);
+
 int main(int argc, char const *argv[])
 {
     int sock;                        /* Socket descriptor */
@@ -44,7 +46,6 @@ int main(int argc, char const *argv[])
                     "Accept: */*\r\n"
                     "Host: 127.0.0.1:8080\r\n"
                     "\r\n";
-                    // "HOST: localhost:8080\r\n"
 
     printf("\n[Request Message]\n\n");
     printf("%s\n", request);
@@ -83,6 +84,18 @@ int main(int argc, char const *argv[])
     char header_strbuf[BUFSIZ];
     bool cr_flag = false;
     bool crlf_flag = false;
+
+    ssize_t r;
+
+    r = recv_header(sock, header_strbuf);
+    printf("recv_header: %zd\n", r);
+    puts(header_strbuf);
+
+    r = recv_header(sock, header_strbuf);
+    printf("recv_header: %zd\n", r);
+    puts(header_strbuf);
+
+    exit(1);
 
     bytes_rcvd = total_bytes_rcvd = 0;
 
@@ -184,6 +197,45 @@ int main(int argc, char const *argv[])
     printf("SSCAN: %d, SCANY: %d\n", sscan, scany);
 
     exit(0);
+}
+
+ssize_t recv_header(int sockfd, char dest[])
+{
+    ssize_t bytes_rcvd       = 0;
+    ssize_t total_bytes_rcvd = 0;
+    bool    cr_flag          = false;
+    bool    crlf_flag        = false;
+    char    cbuf;
+
+    do {
+        bytes_rcvd = recv(sockfd, &cbuf, 1, 0);
+
+        if (bytes_rcvd < 0)
+            die_with_error("recv() failed");
+
+        total_bytes_rcvd += bytes_rcvd;
+
+        if (bytes_rcvd > 0)
+            // Do a "-1" to account for the zero-indexed char array.
+            dest[total_bytes_rcvd - 1] = cbuf;
+        else
+            break;
+
+        if (cbuf != '\n')
+            cr_flag = false;
+
+            if (cbuf == '\r')
+                cr_flag = true;
+
+        if (cr_flag && cbuf == '\n') {
+            puts("Found a CRLF!!!");
+            dest[total_bytes_rcvd] = '\0';
+            crlf_flag = true;
+        }
+
+    } while (!crlf_flag);
+
+    return total_bytes_rcvd;
 }
 
 void send_msg(int sockfd, const char* msg)
