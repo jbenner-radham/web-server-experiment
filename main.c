@@ -1,12 +1,4 @@
-#define _GNU_SOURCE // asprintf()
-
-#include <stdio.h>       // printf(), fprintf()
-#include <sys/socket.h>  // socket(), bind(), connect(), recv()
-#include <arpa/inet.h>   // socketaddr_in, inet_ntoa()
-#include <stdlib.h>      // atoi()
-#include <signal.h>
-#include <string.h>      // memset()
-#include <unistd.h>      // close()
+#include "src/main.h"
 
 #include "src/rfc1123_date.c"
 
@@ -22,6 +14,8 @@
  * @see https://en.wikipedia.org/wiki/Getaddrinfo
  * @see https://en.wikibooks.org/wiki/C_Programming/Networking_in_UNIX
  * @see http://uw714doc.sco.com/en/SDK_netapi/sockC.PortIPv4appIPv6.html
+ * @see http://pubs.opengroup.org/onlinepubs/7908799/xns/arpainet.h.html
+ * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html
  */
 
 void die_with_error(char *error_msg);     // Error handling
@@ -49,7 +43,7 @@ int main(int argc, char *argv[])
     signal(SIGINT, callback_sigint);
 
     int server_sock;                      // Socket descriptor for the server
-    int client_sock;                      // Socket descruotir for the client
+    int client_sock;                      // Socket descriptor for the client
     struct sockaddr_in echo_client_addr;  // Client address
     // struct addrinfo hints, *res;
     unsigned short echo_server_port;      // Server port

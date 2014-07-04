@@ -8,6 +8,9 @@
 
 #define RCVBUFSIZE 32   /* Size of receive buffer */
 
+// Trying this as a global...
+// extern int sock;
+
 void die_with_error(char *error_msg);     // Error handling
 
 int main(int argc, char const *argv[])

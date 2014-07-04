@@ -6,46 +6,59 @@
 #include <string.h> /* for memset() */
 #include <unistd.h> /* for close() */
 
+#define CRLF "\r\n"
+#define SP   " "
 #define RCVBUFSIZE 32   /* Size of receive buffer */
 
+// Trying this as a global...
+extern int sock;
+
 void die_with_error(char *error_msg);     // Error handling
+
+/*
+ssize_t send_msg(int sockfd, const char* msg);
+*/
+
+
+/**
+ * @todo Need to check for the "Host" header and return "400 (Bad Request)" if
+ * it is not received!
+ */
 
 ssize_t recv_header(int sockfd, char dest[]);
 
 int main(int argc, char const *argv[])
 {
-    int sock;                        /* Socket descriptor */
-    u_short server_port;      /* Echo server port */
-    char *server_ip;                 /* Server IP address (dotted quad) */
-    // char *request;                   /* String to send to HTTP server */
-    char response[BUFSIZ];           /* Buffer for HTTP response */
-    ssize_t bytes_rcvd = 0;
-    ssize_t total_bytes_rcvd = 0;
+    // int     sock;                /* Socket descriptor */
+    u_short server_port;            /* Echo server port */
+    char*   server_ip;              /* Server IP address (dotted quad) */
+    char    response[BUFSIZ];       /* Buffer for HTTP response */
+    ssize_t bytes_rcvd        = 0;
+    ssize_t total_bytes_rcvd  = 0;
 
-    server_ip = "127.0.0.1";
+    server_ip   = "127.0.0.1";
     server_port = 8080;
 
-    if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+    if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
         die_with_error("socket() failed");
-    }
 
     // Construct the servr address structure
     struct sockaddr_in server_addr = {
-        .sin_family = AF_INET,                    // AF_INET <- Address Family
+        .sin_family      = AF_INET,               // AF_INET <- Address Family
         .sin_addr.s_addr = inet_addr(server_ip),  // Server IP
-        .sin_port = htons(server_port)            // Local server port
+        .sin_port        = htons(server_port)     // Local server port
     };
 
-    memset(&server_addr.sin_zero, 0, sizeof(server_addr.sin_zero));
+    memset(&server_addr.sin_zero, 0, sizeof server_addr.sin_zero);
 
     /* Establish the connection to the echo server */
-    if (connect(sock, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
+    if (connect(sock, (struct sockaddr*)&server_addr, sizeof server_addr) < 0)
         die_with_error("connect() failed");
 
-    char *request = "GET / HTTP/1.1\r\n"
-                    "Accept: */*\r\n"
-                    "Host: 127.0.0.1:8080\r\n"
-                    "\r\n";
+    char *request = "GET / HTTP/1.1"       CRLF
+                    "Accept: */*"          CRLF
+                    "Host: 127.0.0.1:8080" CRLF
+                    CRLF;
 
     printf("\n[Request Message]\n\n");
     printf("%s\n", request);
@@ -228,7 +241,6 @@ ssize_t recv_header(int sockfd, char dest[])
                 cr_flag = true;
 
         if (cr_flag && cbuf == '\n') {
-            puts("Found a CRLF!!!");
             dest[total_bytes_rcvd] = '\0';
             crlf_flag = true;
         }
@@ -238,11 +250,47 @@ ssize_t recv_header(int sockfd, char dest[])
     return total_bytes_rcvd;
 }
 
-void send_msg(int sockfd, const char* msg)
+// ----------------------------------------------------------------------------
+// http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.1
+// ----------------------------------------------------------------------------
+// The Request-Line begins with a method token, followed by the Request-URI and
+// the protocol version, and ending with CRLF. The elements are separated by SP
+// characters. No CR or LF is allowed except in the final CRLF sequence.
+//
+//   Request-Line   = Method SP Request-URI SP HTTP-Version CRLF
+// ----------------------------------------------------------------------------
+ssize_t send_req_line(int sockfd)
+{
+    struct http_version { u_short major, minor; };
+    struct http_version http_ver = { .major = 1, .minor = 1 };
+
+    ssize_t bytes_sent = 0;
+
+    const char* method      = "GET";
+    const char* request_uri = "/";
+
+    bytes_sent = send_msg(sockfd, method);
+    send_msg(sockfd, SP);
+    send_msg(sockfd, request_uri);
+    send_msg(sockfd, SP);
+    send_msg(sockfd, "HTTP/");
+    send_msg(sockfd, http_ver.major);
+    send_msg(sockfd, ".");
+    send_msg(sockfd, http_ver.minor);
+    send_msg(sockfd, CRLF);
+
+    return bytes_sent;
+}
+
+/*
+ssize_t send_msg(int sockfd, const char* msg)
 {
     size_t bytes = strlen(msg) * sizeof(char);
     ssize_t bytes_sent = send(sockfd, msg, bytes, 0);
+
+    return send_msg;
 }
+*/
 
 void die_with_error(char *error_msg)
 {

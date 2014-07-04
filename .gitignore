@@ -2,3 +2,7 @@
 
 *.sublime-project
 *.sublime-workspace
+.splintrc
+posix.lcd
+src/splint_config.h
+struct_dumb.c

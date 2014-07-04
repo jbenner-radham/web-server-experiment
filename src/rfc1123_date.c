@@ -1,7 +1,27 @@
+/*@-skipposixheaders@*/
+#include <sys/_types/_time_t.h>
+/*@=skipposixheaders@*/
+
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+/**
+ * ----------------------------------------------------------------------------
+ * from: https://gustedt.wordpress.com/2013/10/28/different-times-in-c-calendar-times/
+ * ----------------------------------------------------------------------------
+ * One additional warning is in order. localtime, gmtime, ctime, and asctime use
+ * internal state and return pointers to static data. They are not thread safe,
+ * not reentrant, and calling one of them erases the return value of any
+ * previous call to one of them, be careful.
+ *
+ * The new optional annexe K of C11, has functions that check for validity of
+ * their arguments and are reentrant: localtime_s, gmtime_s, ctime_s, and
+ * asctime_s. Use them when you may. P99 now implements them in its C11
+ * emulation layer, for those of you that don’t have a complying C library, yet.
+ * Give it some testing, if you like.
+ */
 
 // ---------------------------------------------------------------------
 // from: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.18
@@ -37,6 +57,8 @@ void die_with_error(char *error_msg);  // Error handling
 
 // This maximum number of characters in an RFC1123 date is 29 + 1 for '\0'.
 #define RFC1123_LENGTH 30
+
+#define RFC1123_FORMAT "%a, %d %b %Y %T GMT"
 
 char *rfc1123_date(char buf[])
 {
