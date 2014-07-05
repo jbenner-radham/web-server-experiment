@@ -70,6 +70,19 @@ http://www.w3.org/TR/url/
    mailto:username@example.com?subject=Topic
 ```
 
+## Reserved Characters
+
+      reserved    = gen-delims / sub-delims
+
+      gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+
+      sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
+                  / "*" / "+" / "," / ";" / "="
+
+## Unreserved Characters
+
+      unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+
 
 ## SSL
 
