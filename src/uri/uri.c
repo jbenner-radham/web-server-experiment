@@ -22,6 +22,14 @@ typedef struct {
     char *query;     // Change to ptr?
 } URI;
 
+/**
+ * Use this to store a substring's coordinates... in theory we shall see.
+ */
+typedef struct {
+    int a;
+    int b;
+} LINE_SEGMENT;
+
 typedef enum {
     HTTP,
     HTTPS
@@ -30,6 +38,13 @@ typedef enum {
 //    GIT,
 //    DAV
 } SCHEME;
+
+char *get_line_segment(LINE_SEGMENT segment, const char* parent_line)
+{
+    // Do stuff here...
+
+    return NULL;
+}
 
 char *uri_get_helper(const char *haystack, char needle)
 {
@@ -67,24 +82,26 @@ char *uri_get_scheme(const char *uri_str)
 
     for (size_t i = 0, len = strlen(uri_str); i < len; ++i)
     {
-        printf("Char Loop! %c | %c\n", uri_str[i], needle[found_index]);
-
         if (uri_str[i] == needle[found_index]) {
-            printf("Found char: %c @ index: %zu\n", uri_str[i], i);
-
-            printf("found_index: %d, DOUBLE_SLASH: %d\n", found_index, DOUBLE_SLASH);
+            // printf("Found char: %c @ index: %zu\n", uri_str[i], i);
+            // printf("found_index: %d, DOUBLE_SLASH: %d\n", found_index, DOUBLE_SLASH);
 
             if ((found_index + 1) == DOUBLE_SLASH) {
-                puts("Found 'em!!!!");
+                // puts("Found 'em!!!!");
                 puts("-------------");
-                printf("The URI scheme is: ");
+                // printf("The URI scheme is: ");
 
+                /**
+                 * Struct for string (char*) coordinates?
+                 * e.g. str.x = 0, str.y = 5
+                 */
                 for (size_t x = 0; x <= (i - needle_len); ++x)
                 {
                     printf("%c", uri_str[x]);
                 }
 
                 puts("");
+                printf("x: %d, y: %lu\n", 0, (i - needle_len));
                 break;
             }
 
