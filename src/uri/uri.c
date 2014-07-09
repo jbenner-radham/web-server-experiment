@@ -5,6 +5,11 @@
 #include <stdlib.h>
 
 /**
+ * IETF Augmented Backus-Naur Form
+ * @see https://tools.ietf.org/html/rfc5234
+ */
+
+/**
  * From: IETF - RFC3986
  * --------------------
  * <scheme name> : <hierarchical part> [ ? <query> ] [ # <fragment> ]
@@ -13,9 +18,18 @@
 typedef struct {
     // char *raw <-- Have this be the raw string version?
     char *scheme;
-    char *hostname; // Change to ptr?
+    char *hostname;  // Change to ptr?
     char *query;     // Change to ptr?
 } URI;
+
+typedef enum {
+    HTTP,
+    HTTPS
+//    FTP,
+//    SFTP,
+//    GIT,
+//    DAV
+} SCHEME;
 
 char *uri_get_helper(const char *haystack, char needle)
 {
@@ -38,14 +52,14 @@ char *uri_get_fragment(const char *uri_str)
     return uri_get_helper(uri_str, '#');
 }
 
+/**
+ * Augmented Backus–Naur Form (RFC5234) Definition | RFC3986 - Section 3.1
+ * -----------------------------------------------------------------------
+ * scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+ */
 char *uri_get_scheme(const char *uri_str)
 {
-    // char *buf = malloc(50);
-    // printf("Scheme scan: %d\n", sscanf(uri_str, "%s://", buf));
-    // puts(buf);
-    // free(buf);
-    char buf[55];
-
+    // char buf[55];
     enum found_status { NONE, COLON, SLASH, DOUBLE_SLASH };
     enum found_status found_index = NONE;
     const char needle[] = "://";
