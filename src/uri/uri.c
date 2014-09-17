@@ -5,8 +5,15 @@
 #include <stdlib.h>
 
 /**
- * IETF Augmented Backus-Naur Form
+ * --------------------------
+ * IETF Notational References
+ * --------------------------
+ *
+ * Augmented Backus-Naur Form (ABNF)
  * @see https://tools.ietf.org/html/rfc5234
+ *
+ * Routing Backus-Naur Form (RBNF)
+ * @see http://tools.ietf.org/html/rfc5511
  */
 
 /**
@@ -71,6 +78,18 @@ char *uri_get_fragment(const char *uri_str)
  * Augmented Backus–Naur Form (RFC5234) Definition | RFC3986 - Section 3.1
  * -----------------------------------------------------------------------
  * scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+ *
+ * From: RFC7230 - Section 5.5 "Effective Request URI"
+ * ---------------------------------------------------
+ * > If the server's configuration (or outbound gateway) provides a
+ * > fixed URI scheme, that scheme is used for the effective request
+ * > URI.  Otherwise, if the request is received over a TLS-secured TCP
+ * > connection, the effective request URI's scheme is "https"; if not,
+ * > the scheme is "http".
+ *
+ * > The components of the effective request URI, once determined as
+ * > above, can be combined into absolute-URI form by concatenating the
+ * > scheme, "://", authority, and combined path and query component.
  */
 char *uri_get_scheme(const char *uri_str)
 {

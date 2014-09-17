@@ -15,6 +15,10 @@ void die_with_error(char *error_msg);     // Error handling
 
 int main(int argc, char const *argv[])
 {
+    /**
+     * AF_[...] - Address Family
+     * PF_[...] - Protocol Family
+     */
     int sock;                        /* Socket descriptor */
     u_short server_port;      /* Echo server port */
     char *server_ip;                 /* Server IP address (dotted quad) */
@@ -26,6 +30,7 @@ int main(int argc, char const *argv[])
     server_ip = "127.0.0.1";
     server_port = 8080;
 
+    // PF_INET - Internet version 4 protocols
     if ((sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
         die_with_error("socket() failed");
     }

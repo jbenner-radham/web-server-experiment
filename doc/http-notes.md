@@ -1,8 +1,37 @@
 # HTTP Notes For Reference
 
+
 ## Documentation Vocabulary
 
 http://www.ietf.org/rfc/rfc2119.txt
+
+
+## IETF Backus-Naur Notation
+
+#### Augmented Backus-Naur Form (ABNF)
+
+ * RFC5234 - https://tools.ietf.org/html/rfc5234
+
+#### Routing Backus-Naur Form (RBNF)
+
+ * RFC5511 - https://tools.ietf.org/html/rfc5511
+
+### Common Definitions
+
+    alpha    = lowalpha | upalpha
+
+    lowalpha = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" |
+               "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" |
+               "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
+
+    upalpha  = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" |
+               "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" |
+               "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
+
+    digit    = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" |
+               "8" | "9"
+
+    alphanum = alpha | digit
 
 ## Protocol Stack & OSI Layers
 
@@ -33,60 +62,111 @@ thus invoking a protocol separate from HTTP. The URL would then be:
 Please note that "hostname" and "ip address" fields can be referred to by the "host" parent designation.
 
 
-## URI Scheme
+## URI
 
-Reference:
-https://en.wikipedia.org/wiki/URI_scheme
-https://tools.ietf.org/html/rfc3986
-http://www.w3.org/TR/url/
-
-```
     <scheme name> : <hierarchical part> [ ? <query> ] [ # <fragment> ]
-```
 
-```
-    foo://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose
-    \_/   \_______________/ \_________/ \__/            \___/ \_/ \______________________/ \__/
-     |           |               |       |                |    |            |                |
-     |       userinfo         hostname  port              |    |          query          fragment
-     |    \________________________________/\_____________|____|/ \__/        \__/
-     |                    |                          |    |    |    |          |
-     |                    |                          |    |    |    |          |
-  scheme              authority                    path   |    |    interpretable as keys
-   name   \_______________________________________________|____|/       \____/     \_____/
-     |                         |                          |    |          |           |
-     |                 hierarchical part                  |    |    interpretable as values
-     |                                                    |    |
-     |            path               interpretable as filename |
-     |   ___________|____________                              |
-    / \ /                        \                             |
-    urn:example:animal:ferret:nose               interpretable as extension
-                  path
-           _________|________
-   scheme /                  \
-    name  userinfo  hostname       query
-    _|__   ___|__   ____|____   _____|_____
-   /    \ /      \ /         \ /           \
-   mailto:username@example.com?subject=Topic
-```
+---
 
-## Reserved Characters
+#### Defined in: RFC3986 - Section 3
 
-      reserved    = gen-delims / sub-delims
+    URI         = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
 
-      gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+    hier-part   = "//" authority path-abempty
+                / path-absolute
+                / path-rootless
+                / path-empty
 
-      sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
-                  / "*" / "+" / "," / ";" / "="
+---
 
-## Unreserved Characters
+      foo://example.com:8042/over/there?name=ferret#nose
+      \_/   \______________/\_________/ \_________/ \__/
+       |           |            |            |        |
+    scheme     authority       path        query   fragment
+       |   _____________________|__
+      / \ /                        \
+      urn:example:animal:ferret:nose
 
-      unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+#### Characters
+
+
+    uric  = reserved | unreserved | escaped
+
+#### Reserved Characters
+
+###### As defined by RFC3986 / STD: 66 - https://tools.ietf.org/html/rfc3986
+
+    reserved    = gen-delims / sub-delims
+
+    gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+
+    sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
+                / "*" / "+" / "," / ";" / "="
+
+#### Unreserved Characters
+
+###### As defined by RFC3986 / STD: 66 - https://tools.ietf.org/html/rfc3986
+
+    unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+
+#### Scheme - As Defined by RFC3986 - Section 3.1
+
+    scheme = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+
+----
+
+      foo://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose
+      \_/   \_______________/ \_________/ \__/            \___/ \_/ \______________________/ \__/
+       |           |               |       |                |    |            |                |
+       |       userinfo         hostname  port              |    |          query          fragment
+       |    \________________________________/\_____________|____|/ \__/        \__/
+       |                    |                          |    |    |    |          |
+       |                    |                          |    |    |    |          |
+    scheme              authority                    path   |    |    interpretable as keys
+     name   \_______________________________________________|____|/       \____/     \_____/
+       |                         |                          |    |          |           |
+       |                 hierarchical part                  |    |    interpretable as values
+       |                                                    |    |
+       |            path               interpretable as filename |
+       |   ___________|____________                              |
+      / \ /                        \                             |
+      urn:example:animal:ferret:nose               interpretable as extension
+                    path
+             _________|________
+     scheme /                  \
+      name  userinfo  hostname       query
+      _|__   ___|__   ____|____   _____|_____
+     /    \ /      \ /         \ /           \
+     mailto:username@example.com?subject=Topic
+
+
+References:
+ * https://en.wikipedia.org/wiki/URI_scheme
+ * https://tools.ietf.org/html/rfc3986
+ * http://www.w3.org/TR/url/
+
+
+
+* From: RFC7230 - Section 5.5 "Effective Request URI"
+* ---------------------------------------------------
+* > If the server's configuration (or outbound gateway) provides a
+* > fixed URI scheme, that scheme is used for the effective request
+* > URI.  Otherwise, if the request is received over a TLS-secured TCP
+* > connection, the effective request URI's scheme is "https"; if not,
+* > the scheme is "http".
+*
+* > The components of the effective request URI, once determined as
+* > above, can be combined into absolute-URI form by concatenating the
+* > scheme, "://", authority, and combined path and query component.
 
 
 ## SSL
 
-* HTTPS certificates are X.509 certificaes with site information
+* HTTPS certificates are X.509 certificates with site information
+
+#### HTTP Over TLS
+
+http://tools.ietf.org/html/rfc2818
 
 ### SSL Handshake
 
@@ -441,5 +521,35 @@ __HTTP/1.1 - Method Definitions__
 http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
 
 
-### Random neat comparisson chart
+### Random neat comparison chart
 hyperpolyglot.org/scripting
+
+### Random IETF RFC For Message Syntax and Magic 'n Stuff, etc.
+https://tools.ietf.org/html/rfc7230
+
+### CURIE: Compact URI
+https://en.wikipedia.org/wiki/CURIE
+
+### HTTP/1.1 - The Resource Identified by a Request
+> What some specifications, in particular the HTTP specification, refer to as a
+> representation is referred to in this specification as a resource.
+                    -- http://www.w3.org/TR/html5/infrastructure.html#resources
+http://tools.ietf.org/html/rfc2616#section-5.2
+
+### Dereferenceable Uniform Resource Identifier
+https://en.wikipedia.org/wiki/Dereferenceable_Uniform_Resource_Identifier
+
+> Dereferenceable URIs are based on the well-established theory and
+> practices of "data access by reference". A data access and manipulation
+> mechanism is used extensively in general computer programming
+> (e.g., C/C++ pointers) and database call level interfaces
+> (e.g., ODBC and JDBC) amongst others. The term: dereferencing describes
+> the act of obtaining a representation of a description of an entity via
+> its URI.
+
+^ This is like an object as a URI, for instance you could query a person's
+  homepage to ask its "age" and it would respond with the owners age.
+
+
+### More Randome Stuff...
+http://tools.ietf.org/html/rfc1630

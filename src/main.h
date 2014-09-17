@@ -21,10 +21,10 @@
 
 #include <stdlib.h>      // atoi()
 
+#include <ctype.h>       // ispunct(), isupper(), isspace(), iscntrl(), toascii(), tolower()
+
 // Not availabe due to being C11?
 // #include <stdnoreturn.h> // noreturn
 
 #include <signal.h>
 #include <unistd.h>      // close()
-
-
