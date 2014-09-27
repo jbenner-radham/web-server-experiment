@@ -45,7 +45,6 @@ int main(int argc, char *argv[])
     int server_sock;                      // Socket descriptor for the server
     int client_sock;                      // Socket descriptor for the client
     struct sockaddr_in echo_client_addr;  // Client address
-    // struct addrinfo hints, *res;
     unsigned short echo_server_port;      // Server port
     unsigned int client_len;              // Length of the client address struct
 

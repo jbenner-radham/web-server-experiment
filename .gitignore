@@ -1,5 +1,5 @@
 *.out
-
+matts-cpp-mod/
 *.sublime-project
 *.sublime-workspace
 .splintrc

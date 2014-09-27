@@ -15,15 +15,20 @@ void die_with_error(char *error_msg);     // Error handling
 
 int main(int argc, char const *argv[])
 {
+    // printf("BUFSIZ: %d", BUFSIZ); // <-- 1024 on my LT; FYI me.
+
     /**
      * AF_[...] - Address Family
      * PF_[...] - Protocol Family
      */
-    int sock;                        /* Socket descriptor */
-    u_short server_port;      /* Echo server port */
-    char *server_ip;                 /* Server IP address (dotted quad) */
-    // char *request;                   /* String to send to HTTP server */
-    char response[BUFSIZ];           /* Buffer for HTTP response */
+    int sock;                      /* Socket descriptor */
+    u_short server_port;           /* Echo server port */
+    char *server_ip;               /* Server IP address (dotted quad) */
+    // char *request;              /* String to send to HTTP server */
+
+    ///// char response[BUFSIZ];   /* Buffer for HTTP response */
+    char response[2048];           /* Temporary response buffer placeholder */
+
     ssize_t bytes_rcvd = 0;
     ssize_t total_bytes_rcvd = 0;
 
@@ -89,6 +94,14 @@ int main(int argc, char const *argv[])
             die_with_error("recv() failed");
 
         total_bytes_rcvd += bytes_rcvd;
+
+        /**
+         * @todo: Temporary stop-gap. Add proper malloc checks and allocation.
+         *        Any page larger than the BUFSIZ will throw: `Abort trap: 6`.
+         */
+        if (total_bytes_rcvd >= BUFSIZ)
+            die_with_error("Bytes received is greater than `BUFSIZ`.\n");
+
         printf("Bytes received: %zd\n", bytes_rcvd);
         printf("Total bytes received: %zd\n", total_bytes_rcvd);
         strncat(response, rcvbuf, BUFSIZ - 1);
