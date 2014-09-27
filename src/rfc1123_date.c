@@ -53,6 +53,16 @@
 //      MUST NOT include a Date header field. In this case, the rules
 //      in section 14.18.1 MUST be followed.
 
+
+// https://en.wikipedia.org/wiki/C_date_and_time_functions
+
+// HTTP-date - RFC-1123 which is a updated version of RFC-822 referenced
+// via RFC-2616. The 822 variant differed in the display of the year e.g.
+// "YY" as opposed to "YYYY".
+// e.g. "Sat, 05 May 2005 15:55:55 GMT", "Sun, 06 Nov 1994 08:49:37 GMT"
+//
+// RFC 822, updated by RFC 1123
+
 void die_with_error(char *error_msg);  // Error handling
 
 // This maximum number of characters in an RFC1123 date is 29 + 1 for '\0'.
@@ -62,16 +72,6 @@ void die_with_error(char *error_msg);  // Error handling
 
 char *rfc1123_date(char buf[])
 {
-    // https://en.wikipedia.org/wiki/C_date_and_time_functions
-
-    // HTTP-date - RFC-1123 which is a updated version of RFC-822 referenced
-    // via RFC-2616. The 822 variant differed in the display of the year e.g.
-    // "YY" as opposed to "YYYY".
-    // e.g. "Sat, 05 May 2005 15:55:55 GMT"
-    //
-    // Sun, 06 Nov 1994 08:49:37 GMT  ; RFC 822, updated by RFC 1123
-    const char *http_date_fmt = "%a, %d %b %Y %T GMT";
-
     // Upon successful completion, time() returns the value of time. Otherwise,
     // (time_t)-1 is returned.
     time_t t = time(NULL);
@@ -79,17 +79,16 @@ char *rfc1123_date(char buf[])
     if (t == ((time_t) - 1))
         die_with_error("Failed to generate the current time.");
 
-    if (strftime(buf, RFC1123_LENGTH, http_date_fmt, gmtime(&t))) {
+    if (strftime(buf, RFC1123_LENGTH, RFC1123_FORMAT, gmtime(&t)))
         return buf;
-    }
 
     puts("strftime failed.");
 
     return NULL;
 }
 
-//void die_with_error(char *error_msg)
-//{
-//    perror(error_msg);
-//    exit(1);
-//}
+// void die_with_error(char *error_msg)
+// {
+//     perror(error_msg);
+//     exit(1);
+// }
