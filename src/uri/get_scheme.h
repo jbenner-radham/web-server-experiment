@@ -52,14 +52,10 @@ char *uri_get_scheme(const char *uri_str)
     enum found_status { NONE, COLON, SLASH, DOUBLE_SLASH };
     enum found_status found_index = NONE;
     const char scheme_terminator[] = "://";
-    // const char needle[] = "://";
-    // uint8_t needle_len = 3;
 
     for (size_t i = 0, len = strlen(uri_str); i < len; ++i)
     {
         if (uri_str[i] == scheme_terminator<:found_index:>) {
-            /// printf("Found char: %c @ index: %zu\n", uri_str[i], i);
-            /// printf("found_index: %d, DOUBLE_SLASH: %d\n", found_index, DOUBLE_SLASH);
 
             if (found_index + 1 == DOUBLE_SLASH) {
                 puts("-------------");
