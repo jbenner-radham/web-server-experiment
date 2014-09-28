@@ -45,6 +45,10 @@
  * > constructed to mislead the user (Section 7.6).
  */
 
+/**
+ * @todo: Need to account for schemes which are terminated simply by ":" instead
+ *        of "://".
+ */
 #define SCHEME_TERMINATOR_LENGTH 3
 
 char *uri_get_scheme(const char *uri_str)
