@@ -131,8 +131,10 @@ int main(int argc, char const *argv[])
 
     printf("Length of response: %lu\n", strlen(response));
 
-    u_int scany;
-    int sscan = sscanf("Content-Length: 399\r\nContent-Type: text/html\r\n\r\n", "Content-Length: %du", &scany);
+    /// u_int scany;
+    uint8_t scany;
+    /// int sscan = sscanf("Content-Length: 399\r\nContent-Type: text/html\r\n\r\n", "Content-Length: %du", &scany);
+    int sscan = sscanf("Content-Length: 399\r\nContent-Type: text/html\r\n\r\n", "Content-Length: %cu", &scany);
 
     printf("SSCAN: %d, SCANY: %d\n", sscan, scany);
 
