@@ -28,3 +28,7 @@
 
 #include <signal.h>
 #include <unistd.h>      // close()
+
+// Macro "Constants"
+#define CRLF "\r\n"
+#define SP   " "

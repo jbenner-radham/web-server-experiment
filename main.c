@@ -30,10 +30,10 @@ void callback_sigint(int signum)
     exit(signum);
 }
 
-struct status_line_s
+struct status_line
 {
-    double http_version;
-    u_int status_code;
+    float http_version;
+    uint16_t status_code;
     char *reason_phrase;
 };
 
@@ -149,15 +149,15 @@ void handle_tcp_client(int client_sock)
 
     const char* msg_body = "<h1>HELLO Z-RAD-WORLD!!!!!!</h1>";
 
-    char *content_len_p = (char*)malloc(150);
-    sprintf(content_len_p, "Content-Length: %zd\r\n", strlen(msg_body) * sizeof(char));
+    char *content_len_header = malloc(150);
+    sprintf(content_len_header, "Content-Length: %zd" CRLF, strlen(msg_body));
 
     char datetime[RFC1123_LENGTH];
     char date_header[RFC1123_LENGTH + 9];
     rfc1123_date(datetime);
-    sprintf(date_header, "Date: %s\r\n", datetime);
+    sprintf(date_header, "Date: %s"  CRLF, datetime);
 
-    struct status_line_s s = {
+    struct status_line s = {
         .http_version = 1.1,
         .status_code = 200,
         .reason_phrase = "Z-A-OK"
@@ -174,7 +174,7 @@ void handle_tcp_client(int client_sock)
     //send_msg(client_sock, "HTTP/1.1 200 OK\r\n");
     send_msg(client_sock, date_header);
     send_msg(client_sock, "Content-Type: text/html\r\n");
-    send_msg(client_sock, content_len_p);
+    send_msg(client_sock, content_len_header);
     send_msg(client_sock, "\r\n");
     send_msg(client_sock, msg_body);
 
@@ -208,10 +208,10 @@ void handle_tcp_client(int client_sock)
     //char moar_data[BUFSIZ] = "Date: Wed, 18 Jun 2014 04:42:06 GMT\r\n"
     //                         "Content-Type: text/plain\r\n";
 
-    char *content_len_p = (char*)malloc(150);
-    content_len_p = "Content-Length: %zd\r\n";
-    sprintf(content_len_p, "Content-Length: %zd\r\n", body_size);
-    moar_data[strlen(moar_data)] = *content_len_p;
+    char *content_len_header = (char*)malloc(150);
+    content_len_header = "Content-Length: %zd\r\n";
+    sprintf(content_len_header, "Content-Length: %zd\r\n", body_size);
+    moar_data[strlen(moar_data)] = *content_len_header;
 
     puts(moar_data);
 */
@@ -228,7 +228,7 @@ void handle_tcp_client(int client_sock)
 */
     puts("Yippee? *hopefully*");
     close(client_sock);  // Close client socket
-    free(content_len_p); // Free the allocated memory
+    free(content_len_header); // Free the allocated memory
 }
 
 void send_msg(int sockfd, const char* msg)
